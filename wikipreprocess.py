@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 import re
 
 IGNORE_FILES = ['tmp', 'wiki_processed.txt']
 path_base = re.sub(r'\/$', '', sys.argv[1])
+out_path = '.' if len(sys.argv) < 3 else sys.argv[2]
 paths = [p for p in os.listdir(path_base) if p not in IGNORE_FILES]
 
 def create_tmp_dir(path):
@@ -17,9 +20,8 @@ def process_text(text):
     processed = re.sub(r'<[^>]+>\n', '', text)
     processed = re.sub(r'((\[\[)|(\]\]))', '', processed)
     processed = re.sub(r'(\|)', r' \1 ', processed)
+    processed = re.sub(r'([^0-9a-zA-ZáÁéÉíÍóÓúÚàÀèÈìÌòÒùÙâÂêÊîÎôÔûÛãÃõÕçÇ\s\\\.\*\?\+\[\{\|\(\)\^\$\]\}\-\+\^!\"\'%&ºª<>:;`])+', '', processed)
     return re.sub(r'\n+', '\n', processed)
-
-first = True
 
 for path in paths:
     current_path = '{}/{}'.format(path_base, path)
@@ -27,15 +29,12 @@ for path in paths:
     create_tmp_dir(current_path)
 
     for f in files:
-        with open('{}/{}'.format(current_path, f), 'r') as data:
+        with open('{}/{}'.format(current_path, f), 'r', encoding='utf-8') as data:
             processed_text = process_text(data.read())
 
-            with open('{}/tmp/{}.txt'.format(current_path, path), 'w') as out_file:
+            with open('{}/tmp/{}.txt'.format(current_path, path), 'w', encoding='utf-8') as out_file:
                 out_file.write(processed_text)
 
-    with open('{}/wiki_processed.txt'.format(path_base), 'w') as out_file:
-        with open('{}/tmp/{}.txt'.format(current_path, path), 'r') as processed_file:
-            start = '\n' if not first else ''
-            out_file.write(start + processed_file.read())
-    
-    first = False
+    with open('{}/wiki_processed.txt'.format(out_path), 'a+', encoding='utf-8') as out_file:
+        with open('{}/tmp/{}.txt'.format(current_path, path), 'r', encoding='utf-8') as processed_file:
+            out_file.write(processed_file.read())
