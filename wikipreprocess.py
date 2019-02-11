@@ -32,9 +32,11 @@ for path in paths:
         with open('{}/{}'.format(current_path, f), 'r', encoding='utf-8') as data:
             processed_text = process_text(data.read())
 
-            with open('{}/tmp/{}.txt'.format(current_path, path), 'w', encoding='utf-8') as out_file:
+            with open('{}/tmp/{}.txt'.format(current_path, path), 'a+', encoding='utf-8') as out_file:
                 out_file.write(processed_text)
 
     with open('{}/wiki_processed.txt'.format(out_path), 'a+', encoding='utf-8') as out_file:
         with open('{}/tmp/{}.txt'.format(current_path, path), 'r', encoding='utf-8') as processed_file:
             out_file.write(processed_file.read())
+
+            os.remove('{}/tmp'.format(current_path, path))
